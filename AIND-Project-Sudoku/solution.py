@@ -29,25 +29,24 @@ def naked_twins(values):
     # Find all instances of naked twins
     for unit in unit_list:
         twins = {}
+        twins_temp = {}
         for box in unit:
             if values[box] in twins.keys():
-                twins[values[box]].append(box)
+                twins_temp[values[box]].append(box)
+                twins[values[box]] = twins_temp[values[box]]
             else:
-                twins[values[box]] = [box]
+                twins_temp[values[box]] = [box]
 
-        twins = {value: twins_boxes for value, twins_boxes in twins.items() if len(twins_boxes) == len(value) and len(value) > 1}
-        
-        if len(twins.keys()) > 0:
         # If there's twins 
-            # Eliminate the naked twins as possibilities for their peers
-            for value, twins_boxes in twins.items():
-                twins_peers = set(unit) - set(twins_boxes)
-                #print(twins_boxes, "", twins_peers)
-                for box in twins_peers:
-                    new_value = values[box]
-                    for i in value:
-                        new_value = new_value.replace(i,"")
-                    values = assign_value(values, box, new_value)
+        # Eliminate the naked twins as possibilities for their peers
+        for value, twins_boxes in twins.items():
+            twins_peers = set(unit) - set(twins_boxes)
+            #print(twins_boxes, "", twins_peers)
+            for box in twins_peers:
+                new_value = values[box]
+                for i in value:
+                    new_value = new_value.replace(i,"")
+                values = assign_value(values, box, new_value)
     return values
 
 
