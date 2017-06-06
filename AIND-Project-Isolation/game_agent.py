@@ -209,13 +209,66 @@ class MinimaxPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
+        
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
-
+        
         # TODO: finish this function!
-        raise NotImplementedError
+        # use numpy
+        import numpy as np
+
+        # Max Function: Get the Greatest move possibilities
+        def max_value(game_state, current_depth):
+            # timer check
+            if self.time_left() < self.TIMER_THRESHOLD:
+                raise SearchTimeout()
+            # depth check
+            if current_depth > depth:
+                return float("inf")
+            # Terminal-Test
+            if not game_state.utility: return game_state.utility
+            # get max move possibilities
+            value = float("-inf")
+            print(current_depth, depth)
+            for possible_move in game_state.get_legal_moves():
+                possible_game_state = game_state.forecast_move(possible_move)
+                value = max([value, min_value(possible_game_state, current_depth+1)])
+            return value
+
+        # Min Function: Get the smallest move possibilities
+        def min_value(game_state, current_depth):
+            # timer check
+            if self.time_left() < self.TIMER_THRESHOLD:
+                raise SearchTimeout()
+            # depth check
+            if current_depth > depth:
+                return float("-inf")
+            # Terminal-Test
+            if not game_state.utility: return game_state.utility
+            # get min move possiblities
+            value = float("inf")
+            print(current_depth, depth)
+            for possible_move in game_state.get_legal_moves():
+                possible_game_state = game_state.forecast_move(possible_move)
+                value = min([value, max_value(possible_game_state, current_depth+1)])
+            return value
+
+        # Main: Get the move that contains the most possibilities
+        # get possible moves from the current state
+        current_possible_moves = game.get_legal_moves()
+        # scores of all moves
+        scores_of_possible_moves = []
+        # set current depth 
+        initial_depth = 0
+
+        for current_possible_move in current_possible_moves:
+            next_possible_game_state = game.forecast_move(current_possible_move)
+            scores_of_possible_moves.append(min_value(next_possible_game_state, initial_depth + 1))
 
 
+        #raise NotImplementedError
+        return current_possible_moves[np.argmax(np.array(scores_of_possible_moves))]
+        
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
     search with alpha-beta pruning. You must finish and test this player to
