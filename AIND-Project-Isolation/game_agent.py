@@ -3,7 +3,7 @@ test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
 import random
-
+import numpy as np
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
@@ -35,8 +35,8 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    raise NotImplementedError
-
+    #raise NotImplementedError
+    return len(game.get_legal_moves(player = player))
 
 def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -212,63 +212,66 @@ class MinimaxPlayer(IsolationPlayer):
         
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
-        
-        # TODO: finish this function!
-        # use numpy
-        import numpy as np
 
+        # TODO: finish this function!
+        
         # Max Function: Get the Greatest move possibilities
         def max_value(game_state, current_depth):
             # timer check
+            print("Current:", current_depth, ";depth:", depth)
             if self.time_left() < self.TIMER_THRESHOLD:
                 raise SearchTimeout()
-            # depth check
-            if current_depth > depth:
-                return float("inf")
-            # Terminal-Test
-            if not game_state.utility: return game_state.utility
-            # get max move possibilities
+            # depth check (if equal, return self's possible moves from state at depth)
+            if current_depth == depth:
+                return self.score(game_state, self)
+            # Terminal-Test (if at terminal, return self's possible moves)
+            if game_state.utility(self) != 0 : 
+                return self.score(game_state, self)
+                #return game_state.utility(self)
+            
+            # get max value of move possibilities
             value = float("-inf")
-            print(current_depth, depth)
             for possible_move in game_state.get_legal_moves():
                 possible_game_state = game_state.forecast_move(possible_move)
                 value = max([value, min_value(possible_game_state, current_depth+1)])
             return value
 
-        # Min Function: Get the smallest move possibilities
+        # Min Function: Get the Smallest move possibilities
         def min_value(game_state, current_depth):
             # timer check
+            print("Current:", current_depth, ";depth:", depth)
             if self.time_left() < self.TIMER_THRESHOLD:
                 raise SearchTimeout()
-            # depth check
-            if current_depth > depth:
-                return float("-inf")
-            # Terminal-Test
-            if not game_state.utility: return game_state.utility
-            # get min move possiblities
+            # depth check (if equal, return self's possible moves from state at depth)
+            if current_depth == depth:
+                return self.score(game_state, self)
+            # Terminal-Test (if at terminal, return self's possible moves)
+            if game_state.utility(game_state.active_player) != 0: 
+                return self.score(game_state, self)
+                #return game_state.utility(self)
+                
+            # get min value of move possiblities
             value = float("inf")
-            print(current_depth, depth)
             for possible_move in game_state.get_legal_moves():
                 possible_game_state = game_state.forecast_move(possible_move)
                 value = min([value, max_value(possible_game_state, current_depth+1)])
             return value
 
-        # Main: Get the move that contains the most possibilities
+        # Main: Get the move that contains the most possibilities for the current state
+        
         # get possible moves from the current state
         current_possible_moves = game.get_legal_moves()
         # scores of all moves
         scores_of_possible_moves = []
         # set current depth 
         initial_depth = 0
-
         for current_possible_move in current_possible_moves:
             next_possible_game_state = game.forecast_move(current_possible_move)
             scores_of_possible_moves.append(min_value(next_possible_game_state, initial_depth + 1))
 
-
-        #raise NotImplementedError
         return current_possible_moves[np.argmax(np.array(scores_of_possible_moves))]
-        
+
+
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
     search with alpha-beta pruning. You must finish and test this player to
