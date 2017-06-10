@@ -239,14 +239,13 @@ class MinimaxPlayer(IsolationPlayer):
         # Min Function: Get the Smallest move possibilities
         def min_value(game_state, current_depth):
             # timer check
-            print("Current:", current_depth, ";depth:", depth)
             if self.time_left() < self.TIMER_THRESHOLD:
                 raise SearchTimeout()
             # depth check (if equal, return self's possible moves from state at depth)
             if current_depth == depth:
                 return self.score(game_state, self)
             # Terminal-Test (if at terminal, return self's possible moves)
-            if game_state.utility(game_state.active_player) != 0: 
+            if game_state.utility(self) != 0: 
                 return self.score(game_state, self)
                 #return game_state.utility(self)
                 
@@ -310,8 +309,17 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
 
+        # best move
+        best_move = (-1, -1)
+
+        try:
+            return self.alphabeta(game, 3)
+        except SearchTimeout:
+            pass
+
         # TODO: finish this function!
-        raise NotImplementedError
+        #raise NotImplementedError
+        return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
@@ -362,4 +370,67 @@ class AlphaBetaPlayer(IsolationPlayer):
             raise SearchTimeout()
 
         # TODO: finish this function!
-        raise NotImplementedError
+        #raise NotImplementedError
+
+        # Max Function: Get the Greatest move possibilities after pruning
+        def max_value(game_state, current_depth, alpha, beta):
+            # Time check
+            if self.time_left() < self.TIMER_THRESHOLD:
+                raise SearchTimeout()
+            # depth check
+            if current_depth == depth:
+                return self.score(game_state, self)
+            # Terminal test
+            if game_state.utility(self) != 0:
+                return self.score(game_state, self)
+            # get max value of move possibilities
+            value = float("-inf")
+            # iterate through every possible moves
+            for possible_move in game_state.get_legal_moves():
+                possible_game_state = game_state.forecast_move(possible_move)
+                value = max(value, min_value(possible_game_state, current_depth + 1, alpha, beta))
+                # if value is greater than beta -> prune the rest of nodes
+                if value >= beta: 
+                    return value
+                # update alpha
+                alpha = max(alpha, value)
+            return value
+
+        # Min Function: Get the Smallest move possibilities after pruning
+        def min_value(game_state, current_depth, alpha, beta):
+            # Time check
+            if self.time_left() < self.TIMER_THRESHOLD:
+                raise SearchTimeout()
+            # Depth check
+            if current_depth == depth:
+                return self.score(game_state, self)
+            # Terminal Test
+            if game_state.utility(self) != 0:
+                return self.score(game_state, self)
+            # get min value of move possibilities
+            value = float("inf")
+            # iterate through every possible moves
+            for possible_move in game_state.get_legal_moves():
+                possible_game_state = game_state.forecast_move(possible_move)
+                value = min(value, max_value(possible_game_state, current_depth + 1, alpha, beta))
+                # if value is lesser than alpha -> prune the rest of nodes
+                if value <= alpha:
+                    return value
+                beta = min(beta, value)
+            return value
+        
+        # Main: Choose a best_step after alpha-beta pruning
+        # get the current possible moves
+        current_possible_moves = game.get_legal_moves()
+        initial_depth = 0
+        scores_of_possible_moves = []
+		# iterate through current possible moves        
+        for current_possible_move in current_possible_moves:
+            next_possible_game_state = game.forecast_move(current_possible_move)
+            score = min_value(next_possible_game_state, initial_depth + 1, alpha, beta)
+            # update alpha value
+            alpha = max(alpha, score)
+            scores_of_possible_moves.append(score)
+        return current_possible_moves[np.argmax(np.array(scores_of_possible_moves))]
+
+
