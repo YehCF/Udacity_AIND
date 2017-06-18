@@ -36,7 +36,70 @@ def custom_score(game, player):
     """
     # TODO: finish this function!
     #raise NotImplementedError
-    return len(game.get_legal_moves(player = player))
+    
+    if game.is_loser(player):
+        return float("-inf")
+    if game.is_winner(player):
+        return float("inf")
+
+    # get empty moves (exclude player's legal moves)
+    #empty_spaces = np.array(list(set(game.get_blank_spaces()) - set(game.get_legal_moves(player = player))))
+    #empty_space_center = empty_spaces.mean(axis = 0)
+
+    # step differences
+    player_moves = game.get_legal_moves(player = player)
+    opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
+    move_difference = len(player_moves) - len(opponent_moves)
+
+    # get player's location
+    player_x, player_y = game.get_player_location(player = player)
+
+    #return move_difference/8.0 + -1*float(abs(empty_space_center[0]-player_x) + abs(empty_space_center[1]-player_y))/12.0
+    center_x, center_y = 3,3
+
+    opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
+    
+    #return -1*float(abs(abs(player_x-center_x) + abs(player_y-center_y) - 1.5)) + -1*float(abs(player_x-opponent_x) + abs(player_y-opponent_y))
+    return -1*float(abs(abs(player_x-center_x) + abs(player_y-center_y) - 1.5)) + \
+    -1*float(abs(player_x-opponent_x) + abs(player_y-opponent_y)) + (move_difference)
+    #return -1*float(abs(abs(empty_space_center[0]-player_x) + abs(empty_space_center[1]-player_y)-3))
+    
+    #return float(-1*((player_location-empty_space_center)**2).sum())
+
+
+    # future moves center close to the empty spaces center
+    #empty_spaces = np.array(game.get_blank_spaces())
+    #empty_space_center = empty_spaces.mean(axis = 0)   
+    #player_legal_moves = np.array(game.get_legal_moves(player = player))
+    
+    #if len(player_legal_moves) > 0:
+    #    player_legal_moves_center = player_legal_moves.mean(axis = 0)
+    #    return -1.0*float(((player_legal_moves_center-empty_space_center)**2).sum())
+    #else:
+    #    return float("-inf")
+
+    # center of empty spaces
+    #empty_spaces = np.array(game.get_blank_spaces())
+    #empty_space_center = empty_spaces.mean(axis = 0)
+
+    # player's location
+    #player_x, player_y = game.get_player_location(player = player)
+    #return -1*float(abs(empty_space_center[0]-player_x) + abs(empty_space_center[1]-player_y))
+    #return float(-1*((player_location-empty_space_center)**2).sum())
+
+    #player_legal_moves = set(game.get_legal_moves(player = player))
+    #opponent_legal_moves = set(game.get_legal_moves(player = game.get_opponent(player)))
+    #player_unique_moves = np.array(list(player_legal_moves - opponent_legal_moves))
+    
+    #if len(player_unique_moves) > 0:
+        # get a place near the opponent
+    #    opponent_location = np.array(game.get_player_location(player = game.get_opponent(player)))
+    #    distance_from_opponent = np.sum(np.sum((player_unique_moves - opponent_location)**2, axis = 1))
+    #    return float(distance_from_opponent)
+    #else:
+    #    return float(len(player_legal_moves)-len(opponent_legal_moves))
+
+    
 
 def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -61,7 +124,43 @@ def custom_score_2(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+    if game.is_winner(player):
+        return float("inf")
+    
+    
+    # step differences
+    player_moves = game.get_legal_moves(player = player)
+    opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
+    move_difference = len(player_moves) - len(opponent_moves)
+    
+    # location
+    player_x, player_y = game.get_player_location(player = player)
+    opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
+
+    if move_difference > 0:
+    	return (move_difference)*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y)))
+    else:
+    	return abs(move_difference)*-1*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y)))
+
+
+    #return float(move_difference + (abs(player_x-opponent_x) + abs(player_y-opponent_y)))
+
+    #if move_difference > 0 and len(player_moves) > 0 and len(opponent_moves) > 0:
+    #    opponent_legal_moves_center = abs(opponent_moves.mean(axis = 0) - center)
+    #    #opponent_legal_moves_center = (((opponent_moves - center)**2).sum(axis=1)).sum(axis = 0)
+    #    player_legal_moves_center = abs(player_moves.mean(axis = 0) - center)
+    #    #player_legal_moves_center = (((player_moves - center)**2).sum(axis=1)).sum(axis = 0)
+    #    return move_difference + (opponent_legal_moves_center - player_legal_moves_center).sum(axis = 1)
+    #    #return float(move_difference) + -1*float(opponent_legal_moves_center - player_legal_moves_center)
+    #else:
+    #    return float(move_difference)
+    
+    #return float(oppon)
+    #raise NotImplementedError
+    
+
 
 
 def custom_score_3(game, player):
@@ -87,7 +186,62 @@ def custom_score_3(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+    if game.is_winner(player):
+        return float("inf")
+ 
+    # stick to the opponent (simplified computation)
+    #player_x, player_y = game.get_player_location(player = player)
+    #opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
+
+    #return -1*float(abs(player_x-opponent_x) + abs(player_y-opponent_y))
+
+
+    # closer to opponent by (negative values)
+    #player_location = np.array(game.get_player_location(player = player))
+    #opponent_location = np.array(game.get_player_location(player = game.get_opponent(player)))
+    
+    #distance = float(np.sum((player_location-opponent_location)**2))
+
+    #return -1.0*distance
+    
+    # same steps
+    player_moves = game.get_legal_moves(player = player)
+    opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
+
+    same_steps = len(set(player_moves) - set(opponent_moves))
+
+    # distance from opponent
+    player_x, player_y = game.get_player_location(player = player)
+    opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
+    
+    distance = abs(player_x - opponent_x) + abs(player_y - opponent_y)
+
+    return float(same_steps + 1.0/distance)
+    #if same_steps > 0:
+    #    return same_steps * float(1.0/distance)
+    #else:
+    #    return float(1.0/distance)
+
+    #player_location = np.array(game.get_player_location(player = player))
+
+    #center= np.array([game.width / 2, game.height / 2])
+
+    #return float(np.sum((player_location - center)**2))
+
+    
+
+    #if len(player_unique_moves) > 0:
+    #    # get a place near the opponent
+    #    opponent_location = np.array(game.get_player_location(player = game.get_opponent(player)))
+    #    distance_from_opponent = np.sum(np.sum((player_unique_moves - opponent_location)**2, axis = 1))
+    #    return 1.0/float(distance_from_opponent)
+    #else:
+    #    return float(len(player_legal_moves))
+    #return float(len(game.get_legal_moves(player = player)))
+    #return 
+    #raise NotImplementedError
 
 
 class IsolationPlayer:
@@ -218,17 +372,17 @@ class MinimaxPlayer(IsolationPlayer):
         # Max Function: Get the Greatest move possibilities
         def max_value(game_state, current_depth):
             # timer check
-            print("Current:", current_depth, ";depth:", depth)
+            #print("Current:", current_depth, ";depth:", depth)
             if self.time_left() < self.TIMER_THRESHOLD:
                 raise SearchTimeout()
-            # depth check (if equal, return self's possible moves from state at depth)
-            if current_depth == depth:
-                return self.score(game_state, self)
             # Terminal-Test (if at terminal, return self's possible moves)
             if game_state.utility(self) != 0 : 
                 return self.score(game_state, self)
                 #return game_state.utility(self)
-            
+            # depth check (if equal, return self's possible moves from state at depth)
+            if current_depth == depth:
+                return self.score(game_state, self)
+
             # get max value of move possibilities
             value = float("-inf")
             for possible_move in game_state.get_legal_moves():
@@ -241,13 +395,13 @@ class MinimaxPlayer(IsolationPlayer):
             # timer check
             if self.time_left() < self.TIMER_THRESHOLD:
                 raise SearchTimeout()
-            # depth check (if equal, return self's possible moves from state at depth)
-            if current_depth == depth:
-                return self.score(game_state, self)
             # Terminal-Test (if at terminal, return self's possible moves)
             if game_state.utility(self) != 0: 
                 return self.score(game_state, self)
                 #return game_state.utility(self)
+            # depth check (if equal, return self's possible moves from state at depth)
+            if current_depth == depth:
+                return self.score(game_state, self)
                 
             # get min value of move possiblities
             value = float("inf")
@@ -260,6 +414,8 @@ class MinimaxPlayer(IsolationPlayer):
         
         # get possible moves from the current state
         current_possible_moves = game.get_legal_moves()
+        if len(current_possible_moves) == 0:
+            return (-1, -1)
         # scores of all moves
         scores_of_possible_moves = []
         # set current depth 
@@ -267,7 +423,6 @@ class MinimaxPlayer(IsolationPlayer):
         for current_possible_move in current_possible_moves:
             next_possible_game_state = game.forecast_move(current_possible_move)
             scores_of_possible_moves.append(min_value(next_possible_game_state, initial_depth + 1))
-
         return current_possible_moves[np.argmax(np.array(scores_of_possible_moves))]
 
 
@@ -313,13 +468,17 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_move = (-1, -1)
 
         try:
-            return self.alphabeta(game, 3)
+        	depth = 0
+        	while game.utility(self) == 0:
+        		depth += 1
+        		best_move = self.alphabeta(game, depth)
         except SearchTimeout:
-            pass
+        	pass
+        return best_move
 
         # TODO: finish this function!
         #raise NotImplementedError
-        return best_move
+        #return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
