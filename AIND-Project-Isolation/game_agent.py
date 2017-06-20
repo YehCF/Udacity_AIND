@@ -52,9 +52,9 @@ def custom_score(game, player):
     opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
 
     if move_difference > 0:
-        return move_difference + (float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) - same_moves
+        return move_difference*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) - same_moves
     else:
-        return move_difference + -1*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) - same_moves
+        return move_difference*-1*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) - same_moves
 
 
 
@@ -164,9 +164,9 @@ def custom_score_3(game, player):
     opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
 
     if move_difference > 0:
-        return (move_difference) + (float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) + same_moves
+        return (move_difference)*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) + same_moves
     else:
-        return (move_difference) + -1*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) - same_moves
+        return (move_difference)*-1*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) - same_moves
 
 '''    
     # same steps
