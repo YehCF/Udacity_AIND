@@ -40,25 +40,9 @@ def custom_score(game, player):
         return float("-inf")
     if game.is_winner(player):
         return float("inf")
-    
-    # step differences
-    player_moves = game.get_legal_moves(player = player)
-    opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
-    move_difference = len(player_moves) - len(opponent_moves)
-    same_moves = len(set(player_moves) - set(opponent_moves))
-    
-    # location
-    player_x, player_y = game.get_player_location(player = player)
-    opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
-
-    if move_difference > 0:
-        return move_difference*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) - same_moves
-    else:
-        return move_difference*-1*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) - same_moves
 
 
 
-'''
     # Get the difference of legal moves between player and its opponent
     player_moves = game.get_legal_moves(player = player)
     opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
@@ -70,12 +54,9 @@ def custom_score(game, player):
 
     # center of the game
     center_x, center_y = game.width / 2., game.height/2.
+    
+    return -1*float(abs(abs(player_x-center_x) + abs(player_y-center_y) - 1.5)) + -1*float(abs(player_x-opponent_x) + abs(player_y-opponent_y)) + (move_difference)
 
-    
-    
-    return -1*float(abs(abs(player_x-center_x) + abs(player_y-center_y) - 1.5)) + \
-    -1*float(abs(player_x-opponent_x) + abs(player_y-opponent_y)) + (move_difference)
-'''
     
 
 def custom_score_2(game, player):
@@ -153,22 +134,7 @@ def custom_score_3(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    # step differences
-    player_moves = game.get_legal_moves(player = player)
-    opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
-    move_difference = len(player_moves) - len(opponent_moves)
-    same_moves = len(set(player_moves) - set(opponent_moves))
-
-    # location
-    player_x, player_y = game.get_player_location(player = player)
-    opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
-
-    if move_difference > 0:
-        return (move_difference)*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) + same_moves
-    else:
-        return (move_difference)*-1*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y))) - same_moves
-
-'''    
+   
     # same steps
     player_moves = game.get_legal_moves(player = player)
     opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
@@ -182,7 +148,7 @@ def custom_score_3(game, player):
     distance = abs(player_x - opponent_x) + abs(player_y - opponent_y)
 
     return float(same_steps + 1.0/distance)
-'''
+
 
 
 
