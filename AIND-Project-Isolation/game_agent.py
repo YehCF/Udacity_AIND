@@ -9,7 +9,6 @@ class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
     pass
 
-
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
@@ -40,22 +39,23 @@ def custom_score(game, player):
         return float("-inf")
     if game.is_winner(player):
         return float("inf")
+    
 
-
-
-    # Get the difference of legal moves between player and its opponent
+    # Keep-Away-Or-Stick-To Strategy
+    # step differences
     player_moves = game.get_legal_moves(player = player)
     opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
     move_difference = len(player_moves) - len(opponent_moves)
-
-    # get player's and opponent's locations
+    
+    # location
     player_x, player_y = game.get_player_location(player = player)
     opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
 
-    # center of the game
-    center_x, center_y = game.width / 2., game.height/2.
-    
-    return -1*float(abs(abs(player_x-center_x) + abs(player_y-center_y) - 1.5)) + -1*float(abs(player_x-opponent_x) + abs(player_y-opponent_y)) + (move_difference)
+    if move_difference > 0:
+        return (move_difference)*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y)))
+    else:
+        return abs(move_difference)*-1*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y)))
+
 
     
 
@@ -88,22 +88,28 @@ def custom_score_2(game, player):
     if game.is_winner(player):
         return float("inf")
     
-    
-    # step differences
-    player_moves = game.get_legal_moves(player = player)
-    opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
-    move_difference = len(player_moves) - len(opponent_moves)
-    
-    # location
+    # Stick-To Strategy
     player_x, player_y = game.get_player_location(player = player)
     opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
 
-    if move_difference > 0:
-    	return (move_difference)*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y)))
-    else:
-    	return abs(move_difference)*-1*(float(abs(player_x-opponent_x) + abs(player_y-opponent_y)))
+    return -1*float(abs(player_x-opponent_x) + abs(player_y-opponent_y))
+    
 
+    # Hybrid Strategy
+    '''
+    # Get the difference of legal moves between player and its opponent
+    player_moves = game.get_legal_moves(player = player)
+    opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
+    move_difference = len(player_moves) - len(opponent_moves)
 
+    # get player's and opponent's locations
+    player_x, player_y = game.get_player_location(player = player)
+    opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
+
+    # center of the game
+    center_x, center_y = game.width / 2., game.height/2.
+    return -1*float(abs(abs(player_x-center_x) + abs(player_y-center_y) - 1.5)) + -1*float(abs(player_x-opponent_x) + abs(player_y-opponent_y)) + (move_difference)
+    '''
 
 def custom_score_3(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -133,8 +139,17 @@ def custom_score_3(game, player):
         return float("-inf")
     if game.is_winner(player):
         return float("inf")
+    
+    # Toward Free Strategy
+    empty_spaces = np.array(list(set(game.get_blank_spaces()) - set(game.get_legal_moves(player = player))))
+    empty_space_center = empty_spaces.mean(axis = 0)
 
-   
+    player_x, player_y = game.get_player_location(player = player)
+
+    return -1*float(abs(empty_space_center[0] - player_x) + abs(empty_space_center[1]-player_y))
+
+
+    '''
     # same steps
     player_moves = game.get_legal_moves(player = player)
     opponent_moves = game.get_legal_moves(player = game.get_opponent(player))
@@ -146,9 +161,8 @@ def custom_score_3(game, player):
     opponent_x, opponent_y = game.get_player_location(player = game.get_opponent(player))
     
     distance = abs(player_x - opponent_x) + abs(player_y - opponent_y)
-
     return float(same_steps + 1.0/distance)
-
+    '''
 
 
 
@@ -376,13 +390,15 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_move = (-1, -1)
 
         try:
-        	depth = 0
-        	while self.time_left() > self.TIMER_THRESHOLD:
-        		depth += 1
-        		best_move = self.alphabeta(game, depth)
+            depth = 0
+            while self.time_left() >= self.TIMER_THRESHOLD:
+                depth += 1
+                best_move = self.alphabeta(game, depth)
+            
         except SearchTimeout:
-        	#print("Search depth:", depth, " Best move:", best_move)
-        	pass
+            #print("Search depth:", depth, " Best move:", best_move)
+            #print(self, "Search depth:", depth, " Best move:", best_move)
+            pass
         return best_move
 
         # TODO: finish this function!
